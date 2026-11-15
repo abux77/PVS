@@ -1,0 +1,16 @@
+.program pvs_oled_i2c
+.side_set 1 pindirs
+; Open drain: output latches stay zero; direction 0 releases a line.
+; SDA OUT/IN and SCL side-set/jump mappings are independent.
+; One FIFO word per bit (1 = pull SDA low), one sampled bit returned.
+.wrap_target
+    pull block         side 1
+    out pindirs, 1     side 1 [3]
+    nop                side 0 [1]
+stretch:
+    jmp pin sample     side 0
+    jmp stretch        side 0
+sample:
+    in pins, 1         side 0 [3]
+    push block         side 1
+.wrap

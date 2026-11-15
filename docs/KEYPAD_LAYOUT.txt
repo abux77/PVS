@@ -1,0 +1,64 @@
+PVS PRINTED KEYPAD
+==================
+ 1  2  3  A
+ 4  5  6  B
+ 7  8  9  C
+ *  0  #  D
+
+Phrase files now follow the printed keys in this order:
+1, 2, 3, 4, 5, 6, 7, 8, 9, *, 0, #.
+Each nonempty, noncomment phrase line takes the next key. For example:
+
+# Key 1
+S:Hello
+# Key 2
+S:Goodbye
+
+Comments are only labels; file order assigns keys. The factory phrase files
+are already reordered. Serial playback messages use the exact label, e.g.:
+7: SAYBEHR NEHTIHKS KOHRPOHREYTIYAXN (locks:0)
+
+B = Sample rate / bit depth
+D = Preset mode; hold with a phrase key to select its bank
+C = Chromatic mode
+A = Voice mouth / throat
+A+D = USB editing; release both, edit/save, then eject to resume.
+
+LOCK AND PRESET FILES
+--------------------
+Use the printed key as the first CSV field, including *, 0 and #:
+
+# key,flags,speed,pitch,mouth,throat,sample_rate,bit_depth
+7,7,72,96,128,128,22050,8
+*,4,72,96,128,128,16000,3
+0,4,72,96,128,128,22050,8
+#,4,72,96,128,128,22050,8
+
+A row beginning '#,' is a hash-key record, not a comment. '# key,...' is a
+comment. Presets use the same key labels but omit the flags column.
+The numeric aliases 10,11,12 still load as *,0,#; saves use printed labels.
+
+Banks keep filenames phrases_1.txt through phrases_12.txt, with matching
+locks_N.txt. Hold D+1 through D+9 for banks 1-9; D+*, D+0, D+# select 10-12.
+Preset keys use 1-9,*,0,# directly. Chromatic notes C through B follow that
+same key order. startup_state.txt keeps numeric bank/preset indexes; preset
+10/11/12 means */0/# and preset 0 means no recalled startup preset.
+
+ONE-TIME UPDATE OF EXISTING FILES
+-------------------------------
+Firmware updates preserve the PVS disk. Its OLD files must be reordered too.
+
+1. Mount with A+D and copy all .txt files to a backup folder on your Mac.
+2. From the project directory, run:
+   python3 tools/migrate_keypad.py /path/to/old-backup /path/to/new-keypad-files
+3. Copy the converted files onto the PVS drive and eject.
+
+The converter expects the old 12-phrase column order. It reorders phrases and
+changes lock/preset key numbers while preserving which physical key had each
+phrase/setting. It adjusts the startup preset and leaves bank numbers alone.
+The destination must be a new folder; originals are never overwritten.
+Run it ONCE on old files, not on already-converted files.
+
+Alternatively, replace instrument files with the updated data/ factory files
+if you do not want to keep your edits. Remove obsolete lock files if replacing
+custom settings with the factory set, which has no locks. No format is needed.

@@ -1,0 +1,21 @@
+.program pvs_matrix
+; PIO1 SM0: columns GP6..9, active low/high-Z; rows GP10..13.
+; 200 clocks at 100 kHz = one complete scan every 2 ms.
+.wrap_target
+    mov isr, null
+    set pins, 0
+    set pindirs, 1 [31]
+    nop [15]
+    in pins, 4
+    set pindirs, 2 [31]
+    nop [15]
+    in pins, 4
+    set pindirs, 4 [31]
+    nop [15]
+    in pins, 4
+    set pindirs, 8 [31]
+    nop [15]
+    in pins, 4
+    set pindirs, 0
+    push block
+.wrap

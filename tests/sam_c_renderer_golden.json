@@ -1,0 +1,112 @@
+[
+  {
+    "phonemes": "/HEH4LOW",
+    "voice": [
+      72,
+      96,
+      128,
+      128
+    ],
+    "samples": 10489,
+    "sha256": "2323c8b565f5a1572f3585e8b9ffd10c2e16e895c3182227fb48f9cf5567a5d1"
+  },
+  {
+    "phonemes": "/HEH4LOW",
+    "voice": [
+      110,
+      90,
+      160,
+      90
+    ],
+    "samples": 15414,
+    "sha256": "f5883ad4336d540bcca47cafa5d8a97df9fb40427c5f73ab4db6e6b343148fb3"
+  },
+  {
+    "phonemes": "WERLD",
+    "voice": [
+      72,
+      96,
+      128,
+      128
+    ],
+    "samples": 8631,
+    "sha256": "a4aefde118d770f8e2e81e1d809dd310d4a4d555ea64b16be16203eceefe3900"
+  },
+  {
+    "phonemes": "WERLD",
+    "voice": [
+      110,
+      90,
+      160,
+      90
+    ],
+    "samples": 13063,
+    "sha256": "6d6e00e5bbc420b7503d3c2e806f1fedc80644e7ed8fb5d01d3ae5ac393a8f01"
+  },
+  {
+    "phonemes": "AY4",
+    "voice": [
+      72,
+      96,
+      128,
+      128
+    ],
+    "samples": 5365,
+    "sha256": "dbdb43c0be9798260b015341bd1811fdcf2f6182df2ab776c8a97a82d9e9cebd"
+  },
+  {
+    "phonemes": "AY4",
+    "voice": [
+      110,
+      90,
+      160,
+      90
+    ],
+    "samples": 8074,
+    "sha256": "2f7ab229c9672b15483089c6169a181c0379d1a7bdce1fd490a9a85794fbf1db"
+  },
+  {
+    "phonemes": "ROH4BOWLAORD",
+    "voice": [
+      72,
+      96,
+      128,
+      128
+    ],
+    "samples": 22861,
+    "sha256": "d851b09cb1e57f92025fbaecad6105cb167e22826ec9071aa3816887b4ddbf37"
+  },
+  {
+    "phonemes": "ROH4BOWLAORD",
+    "voice": [
+      110,
+      90,
+      160,
+      90
+    ],
+    "samples": 34804,
+    "sha256": "6398bb68245ab94508d6792021db58dd904e5b1c40fdb024f9b99b30a519b903"
+  },
+  {
+    "phonemes": "SIH4KS",
+    "voice": [
+      72,
+      96,
+      128,
+      128
+    ],
+    "samples": 9987,
+    "sha256": "9a6f68c75afdfa1bc0cbe542524ac1e9df620052cf62215e6e647cb9a9b0f407"
+  },
+  {
+    "phonemes": "SIH4KS",
+    "voice": [
+      110,
+      90,
+      160,
+      90
+    ],
+    "samples": 12819,
+    "sha256": "964db666ddb5a8971f4c2a1e4c87bcce3b5b5a423f5db44889024dddadbfd5c0"
+  }
+]

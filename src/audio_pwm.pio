@@ -1,0 +1,15 @@
+.program pvs_audio_pwm
+.side_set 1 opt
+; PIO0 SM0, GP0. Four unsigned PCM bytes per 32-bit DMA word.
+; ISR holds 255. Each sample takes 2 + 256*3 = 770 PIO clocks.
+.wrap_target
+    out x, 8       side 0
+    mov y, isr     side 0
+pwm_loop:
+    jmp x!=y skip
+    jmp cont       side 1
+skip:
+    nop
+cont:
+    jmp y-- pwm_loop
+.wrap

@@ -1,0 +1,45 @@
+# Printed keypad:
+#   1 2 3 A
+#   4 5 6 B
+#   7 8 9 C
+#   * 0 # D
+# Phrase order: 1,2,3,4,5,6,7,8,9,*,0,#.
+# A=Sample B=Preset/bank C=Chromatic D=Voice; A+D=USB edit.
+# Comments label the NEXT phrase; non-comment line order assigns keys.
+# S: ordinary text; P: SAM phonemes.
+
+# Key 1
+S:We are
+
+# Key 2
+S:information
+
+# Key 3
+S:a, e, i
+
+# Key 4
+P:TIYNIY TAYNIY GAYAENTS
+
+# Key 5
+S:black cars
+
+# Key 6
+S:six
+
+# Key 7
+S:our next song is
+
+# Key 8
+S:i love my calculator
+
+# Key 9
+S:phrase 2, button 11
+
+# Key *
+S:the life i choose
+
+# Key 0
+S:bisector
+
+# Key #
+S:number sign

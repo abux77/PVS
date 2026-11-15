@@ -1,0 +1,18 @@
+# Build products and local SDK/editor state
+/build/
+/build-*/
+/.vscode/
+/.pico-sdk/
+/.codex/
+/.agents/
+
+# Generated diagnostics and Python/macOS caches
+/diagnostics/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Local credentials and environment configuration
+.env
+.env.*
+!.env.example

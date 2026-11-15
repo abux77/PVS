@@ -1,0 +1,10 @@
+* text=auto
+*.c text eol=lf
+*.h text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.cmake text eol=lf
+*.png binary
+*.ttf binary
+*.wav binary
+*.uf2 binary

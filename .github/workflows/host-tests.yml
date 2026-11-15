@@ -1,0 +1,13 @@
+name: Host tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  host-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run regression suite
+        env:
+          CC: clang
+        run: python3 tests/run_tests.py

@@ -1,0 +1,181 @@
+PVS SAM PHONEME REFERENCE
+=========================
+For the native C PVS firmware, September 2026.
+
+This list follows our firmware's PHONEME_NAMES table and parser, rather than
+an older manual. Sound descriptions are approximate English listening aids;
+pronunciation varies with accent and SAM voice settings.
+
+WRITING A PHRASE
+----------------
+Use P: for phonemes and S: for ordinary English:
+
+    P:/HEH4LOW WERLD
+    S:Hello world
+
+Join phonemes within a word. Separate words with spaces. In PVS, spaces cause
+word-by-word rendering and parameter updates, so do not put a space between
+every phoneme unless you want each piece treated as a separate word.
+Use uppercase for clarity; lowercase phoneme letters are also accepted.
+Lines beginning with # are comments in phrase files.
+
+VOWELS
+------
+IY   Long ee, as in green
+IH   Short i, as in fish
+EH   Short e, as in bed
+AE   Short a, as in cat
+AA   Open ah, as in father
+AH   Short uh, as in cup
+AO   Rounded aw, as in law
+UH   Short oo, as in book
+AX   Unstressed uh (schwa), as at the start of about
+IX   Reduced short i; an unstressed vowel variant
+ER   R-colored vowel, as in bird
+UX   Alternate oo/u vowel; useful for experimenting with SAM's u sounds
+OH   Alternate rounded o vowel; use OW for the usual go diphthong
+
+DIPHTHONGS (VOWELS THAT CHANGE SOUND)
+-----------------------------------
+EY   ay, as in day
+AY   eye, as in my
+OY   oy, as in boy
+AW   ow, as in now
+OW   oh, as in go
+UW   oo, as in blue
+
+CONSONANTS
+----------
+B    b, as in boat
+D    d, as in dog
+G    Hard g, as in gate
+P    p, as in pen
+T    t, as in top
+K    k, as in kite
+CH   ch, as in chip
+J    j, as in jam
+F    f, as in fan
+V    v, as in van
+TH   Unvoiced th, as in thin
+DH   Voiced th, as in this
+S    s, as in sun
+Z    z, as in zoo
+SH   sh, as in ship
+ZH   Voiced zh, as in the middle of vision
+/H   h sound, as in hat; the slash is part of the phoneme
+/X   Alternate h sound used in SAM's back-vowel contexts
+M    m, as in moon
+N    n, as in nose
+NX   ng, as at the end of sing (not N followed by G)
+L    l, as in leaf
+R    r, as in red
+W    w, as in wet
+Y    y, as in yes
+WH   Breathier wh variant; WH is valid, HW is not a single phoneme
+DX   Quick voiced tap, like the middle consonant of American English butter
+Q    Glottal stop, the catch between the two parts of uh-oh
+
+ADDITIONAL CONTEXTUAL VARIANTS
+-----------------------------
+RX   R variant used after vowels
+LX   L variant used after vowels
+WX   W-like vowel transition
+YX   Y-like vowel transition
+GX   Alternate hard-g articulation
+KX   Alternate k articulation
+
+The parser may insert/select these automatically. They are also accepted in
+phonetic input. Prefer ordinary R, L, W, Y, G and K when starting out.
+
+SYLLABIC CONSONANTS
+------------------
+UL   Syllabic l, as at the end of bottle
+UM   Syllabic m, as at the end of rhythm
+UN   Syllabic n, as at the end of button
+
+Our parser expands these into AX followed by L, M or N respectively.
+
+STRESS MARKS
+------------
+Digits 1 through 8 go immediately AFTER the phoneme they modify, normally a
+vowel. For example:
+
+    AY4     AY with stress marker 4
+    AE3     AE with stress marker 3
+    /HEH4LOW
+
+Stress affects SAM's pitch and phoneme timing; it is not a volume setting.
+Start with 4 and listen, then try other markers. Omit the digit for no explicit
+stress marker. Do not use 0 or 9, or start a word with a stress digit.
+
+PUNCTUATION
+-----------
+The phonetic parser accepts:
+
+    .    Period / statement inflection
+    ?    Question inflection
+    ,    Comma
+    -    Dash
+
+Attach punctuation to a word, for example P:/HEH4LOW.
+Phonetic punctuation follows the SAM parser/renderer; it is not the same as
+PVS's timed punctuation pauses for S: ordinary-text phrases.
+Exclamation marks, colons and semicolons are not accepted in P: input.
+They can be used in S: input, where PVS handles their pauses.
+
+WHY NEHTIHCS PRODUCED A WARNING
+------------------------------
+NEHTIHCS can be read as N + EH + T + IH + C + S.
+There is no standalone C phoneme. For a hard c sound use K:
+
+    Old:        P:NEHTIHCS
+    Valid form: P:NEHTIHKS
+
+That fixes the unsupported letter; it is not a guarantee of the intended
+pronunciation. Tune the vowels and stress by ear.
+Similarly, COHRPOHREYTIYAXN begins with an unsupported C. Replacing that first
+C with K gives KOHRPOHREYTIYAXN, a valid sequence to use as a starting point.
+
+Other common traps:
+
+    H alone      Use /H (or the contextual /X variant).
+    C alone      Use K for hard c, or S for soft c.
+    X alone      Usually spell the intended sounds, such as KS or GZ.
+    NG           Use NX for the single ng sound in sing.
+    HW           Use WH if you want that phoneme, or /H followed by W if
+                 you deliberately want two separate sounds.
+    HWAAN        Contains unsupported H. WAAN is a valid starting point
+                 for the w-ah-n sounds; listen and adjust the vowel.
+
+Our compatibility parser skips unsupported letters in some legacy phrases
+and prints a warning. That can change pronunciation; fix the spelling rather
+than relying on the skipped letters.
+
+COMPLETE INPUT TOKEN CHECKLIST
+-----------------------------
+Vowels:       IY IH EH AE AA AH AO UH AX IX ER UX OH
+Diphthongs:   EY AY OY AW OW UW
+Consonants:   B D G P T K CH J F V TH DH S Z SH ZH /H /X M N NX
+              L R W Y WH DX Q
+Variants:     RX LX WX YX GX KX
+Syllabic:     UL UM UN
+Punctuation:  . ? , -
+Stress:       1 2 3 4 5 6 7 8 (after a phoneme)
+Word break:   space
+
+Source-code names like B*, R*, .* and ** contain internal placeholders.
+Do NOT type the asterisks. B* means type B; ** is an internal sound component,
+not a user-input phoneme. There are no other standalone letter phonemes.
+
+EDITING THE INSTRUMENT
+----------------------
+Press keys A and D together, then release them. Open the PVS drive and
+edit phrases_1.txt through phrases_12.txt as plain text. Save and eject the
+drive to resume speech. Each non-comment phrase line occupies a phrase slot.
+Keep each phrase shorter than 384 characters, excluding its S: or P: prefix.
+
+Implementation sources in this project:
+    src/sam/sam_tables.h       Exact accepted phoneme names
+    src/sam/sam_parser.c       Token matching, stress and phoneme rewrites
+    src/sam_pvs.c              PVS word splitting and legacy compatibility
+    src/storage_format.c      Phrase-file parsing
