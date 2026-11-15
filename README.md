@@ -291,6 +291,9 @@ The higher rate changes playback speed/pitch; SAM still generates its native PCM
 
 ## Browser companion
 
+Open the hosted companion at **https://abux77.github.io/PVS/** in desktop
+Chrome or Edge, or run it locally as described below.
+
 The [local companion page](web/README.md) mirrors the hardware OLED at an
 integer scale of 4×–8×, displays all six voice parameters, and supports web
 edits while physical knobs and phrase locks are not controlling them. Serve

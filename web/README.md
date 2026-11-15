@@ -1,5 +1,12 @@
 # PVS hardware companion
 
+Live companion: **https://abux77.github.io/PVS/**
+
+The `Deploy PVS companion` GitHub Actions workflow publishes `web/` to GitHub
+Pages when this folder changes on `main`, or when dispatched manually. The
+hosted page connects directly to your USB instrument; first-time serial access
+must be granted on this origin even if localhost already has permission.
+
 Serve this folder locally and open it in desktop Chrome or Edge:
 
 ```sh
