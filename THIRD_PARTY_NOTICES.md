@@ -31,6 +31,10 @@ digits and remains under that license. Preserve the copyright and OFL text
 when redistributing the font or bitmap with firmware.
 See [font provenance](assets/fonts/README.md).
 
+The browser companion also serves the supplied, unmodified Audiowide TTF.
+Its license and the supplied retro PVS logo credits are included in
+[web asset notices](web/assets/README.md).
+
 The PVS logo and its generated OLED bitmap/preview are Copyright 2026
 Andrew Buckie, licensed under [CC BY-NC 4.0](assets/LOGO_LICENSE.md).
 

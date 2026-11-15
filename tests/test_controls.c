@@ -45,6 +45,7 @@ static bool format_request;
 static unsigned formats;
 static unsigned edit_entries;
 static void (*status_callback)(void);
+static unsigned mock_phrase_count=12;
 static char bank_one_text[PVS_MAX_PHRASE] = "hello world";
 
 static sam_voice_t voice_values(uint8_t speed, uint8_t pitch, uint8_t mouth,
@@ -124,7 +125,7 @@ bool storage_load_bank(unsigned bank, phrase_bank_t *out) {
     if (bank < 1 || bank > 12 || !disk_bank_available[bank - 1]) return false;
     ++phrase_loads;
     memset(out, 0, sizeof *out);
-    out->count = 12;
+    out->count = mock_phrase_count;
     for (unsigned i = 0; i < 12; ++i) {
         out->item[i].kind = PHRASE_SAY;
         snprintf(out->item[i].text, sizeof out->item[i].text, "bank%u phrase%u", bank, i + 1);
@@ -533,11 +534,198 @@ static void test_bootsel_eject(void) {
     tick(1500); assert(pvs_bootsel_ready());
 }
 
+static void test_companion_controls(void) {
+    boot();
+    pvs_controls_t state;
+    pvs_controls_read(&state);
+    assert(state.editable && !state.hardware_mask && !state.lock_mask && state.mode == 0);
+    assert(!strcmp(pvs_controls_set("speed", 88), "ok"));
+    assert(!strcmp(pvs_controls_set("pitch", 101), "ok"));
+    assert(!strcmp(pvs_controls_set("mouth", 150), "ok"));
+    assert(!strcmp(pvs_controls_set("throat", 151), "ok"));
+    assert(!strcmp(pvs_controls_set("rate", 16000), "ok"));
+    assert(!strcmp(pvs_controls_set("bits", 4), "ok"));
+    tick(100);
+    pvs_controls_read(&state);
+    assert(state.voice.speed == 88 && state.voice.pitch == 101);
+    assert(state.voice.mouth == 150 && state.voice.throat == 151);
+    assert(state.voice.sample_rate == 16000 && state.voice.bit_depth == 4);
+    assert(rendered_voice.speed == 88 && rendered_voice.sample_rate == 16000);
+    assert(!strcmp(pvs_controls_set("speed", 0), "range"));
+    assert(!strcmp(pvs_controls_set("mouth", 256), "range"));
+    assert(!strcmp(pvs_controls_set("rate", 7999), "range"));
+    assert(!strcmp(pvs_controls_set("rate", 88201), "range"));
+    assert(!strcmp(pvs_controls_set("bits", 9), "range"));
+    assert(!strcmp(pvs_controls_set("nope", 1), "parameter"));
+    /* Movement wins even if no display/control tick has processed it yet. */
+    raw1 += 800;
+    assert(!strcmp(pvs_controls_set("speed", 99), "hardware"));
+    tick(60); pvs_controls_read(&state);
+    assert(state.hardware_mask == 1 && state.voice.speed != 99);
+    assert(!strcmp(pvs_controls_set("pitch", 111), "ok"));
+    tap(13); /* Voice frees speed/pitch and rearms mouth/throat. */
+    assert(!strcmp(pvs_controls_set("speed", 99), "ok"));
+    assert(!strcmp(pvs_controls_set("mouth", 160), "ok"));
+    raw1 += 799; tick(60);
+    pvs_controls_read(&state); assert(state.voice.mouth == 160);
+    ++raw1;
+    assert(!strcmp(pvs_controls_set("mouth", 161), "hardware"));
+    tap(15); raw2 += 800;
+    assert(!strcmp(pvs_controls_set("pitch", 112), "hardware"));
+    assert(!preset_writes && !lock_writes);
+    edit_active = true;
+    assert(!strcmp(pvs_controls_set("bits", 5), "unavailable"));
+    edit_active = false; pvs_request_bootsel();
+    assert(!strcmp(pvs_controls_set("bits", 5), "unavailable"));
+}
+
+static void companion_during_word(unsigned word) {
+    if (word) return;
+    pvs_controls_t state; pvs_controls_read(&state);
+    assert(state.busy && state.lock_mask == 12);
+    assert(!strcmp(pvs_controls_set("mouth", 200), "locked"));
+    assert(!strcmp(pvs_controls_set("speed", 91), "ok"));
+    assert(!strcmp(pvs_controls_set("rate", 16000), "ok"));
+    assert(rendered_voice.speed == 72); /* Preserve the in-flight word. */
+}
+static void test_companion_word(void) {
+    disk_locks[0][0].flags = LOCK_VOICE;
+    disk_locks[0][0].voice = voice_values(72, 96, 180, 181, 22050, 8);
+    boot(); during_word = companion_during_word;
+    tap(1);
+    assert(spoken_count == 2);
+    assert(spoken[0].voice.speed == 72 && spoken[0].voice.mouth == 180);
+    assert(spoken[0].rate_after_service == 16000);
+    assert(spoken[1].voice.speed == 91 && spoken[1].voice.sample_rate == 16000);
+    pvs_controls_t state; pvs_controls_read(&state);
+    assert(!state.lock_mask && state.voice.mouth == 128);
+}
+
+static void test_midi_controls(void) {
+    boot();
+    pvs_controls_t state;
+    for (unsigned value=0;value<128;++value) {
+        for(unsigned cc=20;cc<=25;++cc) pvs_midi_cc((uint8_t)cc,(uint8_t)value);
+        pvs_controls_read(&state);
+        assert(state.voice.speed==1+(value*254+63)/127);
+        assert(state.voice.pitch==(value*255+63)/127);
+        assert(state.voice.mouth==(value*255+63)/127);
+        assert(state.voice.throat==(value*255+63)/127);
+        assert(state.voice.sample_rate==8000+(value*80200+63)/127);
+        assert(state.voice.bit_depth==1+(value*7+63)/127);
+    }
+    raw1=65535; tick(60); pvs_controls_read(&state); assert(state.hardware_mask&1);
+    pvs_midi_cc(20,127); tick(60); pvs_controls_read(&state);
+    assert(state.voice.speed==255 && !(state.hardware_mask&1));
+    raw1-=799; tick(60); pvs_controls_read(&state); assert(state.voice.speed==255);
+    --raw1; tick(60); pvs_controls_read(&state); assert(state.voice.speed!=255);
+    pvs_midi_cc(19,0); pvs_midi_cc(26,0); pvs_midi_cc(21,255);
+    pvs_controls_read(&state); assert(state.voice.pitch==255);
+    edit_active=true; pvs_midi_cc(22,0); pvs_midi_note(36,127); tick(1);
+    pvs_controls_read(&state); assert(state.voice.mouth==255 && !speech_calls);
+    assert(!preset_writes&&!lock_writes);
+}
+static void test_midi_notes(void) {
+    boot();
+    pvs_midi_note(35,127);pvs_midi_note(48,127);pvs_midi_note(36,0);tick(1);
+    assert(!speech_calls);
+    for(unsigned note=36;note<=47;++note){
+        clear_spoken();pvs_midi_note((uint8_t)note,100);tick(1);
+        assert(spoken_count==2);
+        if(note==36)assert(!strcmp(spoken[0].text,"hello"));
+        else if(note==37)assert(spoken[0].phonetic);
+        else{char expected[16];snprintf(expected,sizeof expected,"phrase%u",note-35);assert(!strcmp(spoken[1].text,expected));}
+    }
+    tap(15);clear_spoken();pvs_midi_note(36,127);tick(1);
+    assert(!strcmp(spoken[0].text,"hello")); /* Notes always address bank keys. */
+    tap(16);clear_spoken();pvs_midi_note(47,127);tick(1);
+    assert(!strcmp(spoken[1].text,"phrase12") && !preset_writes);
+    clear_spoken();pvs_midi_note(36,127);pvs_midi_note(38,127);tick(1);
+    assert(spoken_count==2&&!strcmp(spoken[1].text,"phrase3")); /* Latest note wins. */
+}
+static void midi_interrupt_word(unsigned word) {
+    if(word)return;
+    during_word=NULL;
+    pvs_midi_cc(22,127);pvs_midi_note(37,100);
+}
+static void test_midi_retrigger(void) {
+    boot();during_word=midi_interrupt_word;
+    pvs_midi_note(36,127);tick(1);
+    assert(spoken_count==3 && !strcmp(spoken[0].text,"hello"));
+    assert(spoken[1].phonetic && spoken[1].voice.mouth==255);
+}
+static void midi_locked_word(unsigned word) {
+    (void)word;pvs_midi_cc(22,127);pvs_midi_cc(24,127);
+}
+static void test_midi_locks(void) {
+    disk_locks[0][0].flags=LOCK_VOICE|LOCK_SAMPLE;
+    disk_locks[0][0].voice=voice_values(72,96,180,181,12350,3);
+    boot();during_word=midi_locked_word;pvs_midi_note(36,127);tick(1);
+    assert(spoken_count==2);
+    for(unsigned i=0;i<2;++i){assert(spoken[i].voice.mouth==180);assert(spoken[i].rate_after_service==12350);}
+    pvs_controls_t state;pvs_controls_read(&state);
+    assert(state.voice.mouth==255&&state.voice.sample_rate==88200);
+    assert(rendered_voice.mouth==255&&rendered_voice.sample_rate==88200);
+}
+
+static void metadata_during_word(unsigned word) {
+    (void)word;pvs_bank_state_t state;pvs_bank_read(&state);
+    assert(state.playing==0);
+}
+static void test_phrase_metadata(void) {
+    boot();pvs_bank_state_t before,after;pvs_bank_read(&before);
+    assert(before.bank==1&&before.revision>0&&before.playing==-1);
+    pvs_phrase_chunk_t phrase;
+    for(unsigned key=0;key<12;++key){
+        assert(pvs_phrase_chunk(key,0,&phrase));
+        assert(phrase.bank==1&&phrase.revision==before.revision&&phrase.length>0);
+        assert(phrase.kind==(key==1?'P':'S')&&!phrase.locks);
+    }
+    lock_short(13,3);pvs_bank_read(&after);assert(after.revision>before.revision);
+    assert(pvs_phrase_chunk(2,0,&phrase)&&phrase.locks==LOCK_VOICE);
+    before=after;press(13);press(3);tick(2000);release(3);release(13);
+    pvs_bank_read(&after);assert(after.revision>before.revision);
+    assert(pvs_phrase_chunk(2,0,&phrase)&&!phrase.locks);
+    during_word=metadata_during_word;
+    assert(!strcmp(pvs_trigger_key(0),"ok"));tick(1);during_word=NULL;
+    pvs_bank_read(&after);assert(after.playing==-1);
+    select_bank(2);pvs_bank_read(&after);assert(after.bank==2);
+    assert(pvs_phrase_chunk(0,0,&phrase));assert(!memcmp(phrase.text,"bank2 phrase1",13));
+    edit_active=true;assert(!strcmp(pvs_trigger_key(0),"unavailable"));
+}
+static void test_phrase_long(void) {
+    for(unsigned i=0;i<sizeof bank_one_text-1;++i)bank_one_text[i]=(char)('A'+i%26);
+    bank_one_text[sizeof bank_one_text-1]=0;
+    boot();char collected[PVS_MAX_PHRASE]={0};pvs_phrase_chunk_t phrase;
+    for(unsigned chunk=0;chunk<8;++chunk){
+        assert(pvs_phrase_chunk(0,chunk,&phrase));
+        assert(phrase.length==383&&phrase.count==(chunk==7?47:48));
+        memcpy(collected+chunk*48,phrase.text,phrase.count);
+    }
+    assert(!strcmp(collected,bank_one_text));
+    assert(!pvs_phrase_chunk(12,0,&phrase)&&!pvs_phrase_chunk(0,8,&phrase));
+    assert(pvs_phrase_chunk(1,7,&phrase)&&phrase.count==0);
+}
+static void test_phrase_empty(void) {
+    mock_phrase_count=3;boot();pvs_phrase_chunk_t phrase;
+    assert(pvs_phrase_chunk(11,0,&phrase)&&phrase.kind=='E'&&!phrase.length&&!phrase.count&&!phrase.locks);
+    assert(!strcmp(pvs_trigger_key(11),"range"));
+}
+
 int main(int argc, char **argv) {
     assert(argc == 2);
     if (!strcmp(argv[1], "bootsel")) { test_bootsel(); return 0; }
     if (!strcmp(argv[1], "bootsel_eject")) { test_bootsel_eject(); return 0; }
-    if (!strcmp(argv[1], "startup")) test_startup();
+    if (!strcmp(argv[1], "phrase_metadata")) test_phrase_metadata();
+    else if (!strcmp(argv[1], "phrase_long")) test_phrase_long();
+    else if (!strcmp(argv[1], "phrase_empty")) test_phrase_empty();
+    else if (!strcmp(argv[1], "midi_controls")) test_midi_controls();
+    else if (!strcmp(argv[1], "midi_notes")) test_midi_notes();
+    else if (!strcmp(argv[1], "midi_retrigger")) test_midi_retrigger();
+    else if (!strcmp(argv[1], "midi_locks")) test_midi_locks();
+    else if (!strcmp(argv[1], "companion_controls")) test_companion_controls();
+    else if (!strcmp(argv[1], "companion_word")) test_companion_word();
+    else if (!strcmp(argv[1], "startup")) test_startup();
     else if (!strcmp(argv[1], "modes_pickup")) test_modes_pickup();
     else if (!strcmp(argv[1], "pickup_threshold")) test_pickup_threshold();
     else if (!strcmp(argv[1], "live_modulation")) test_live_modulation();

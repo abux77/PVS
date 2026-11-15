@@ -1,5 +1,7 @@
 #include "storage.h"
 #include "pvs.h"
+#include "oled.h"
+#include "midi.h"
 #include "flash_disk.h"
 #include "tusb.h"
 #include <ctype.h>
@@ -9,6 +11,76 @@
 static bool edit_request;
 static bool format_request;
 static void (*status_callback)(void);
+
+static void console_bank(void) {
+    pvs_bank_state_t state;
+    pvs_bank_read(&state);
+    char line[64];
+    int length = snprintf(line, sizeof line, "PVS BANK 1 %u %lu %d\n",
+        state.bank, (unsigned long)state.revision, state.playing);
+    if (length > 0 && tud_cdc_connected() && tud_cdc_write_available() >= (unsigned)length)
+        tud_cdc_write(line, (unsigned)length);
+}
+
+static void console_phrase(unsigned key, unsigned chunk) {
+    pvs_phrase_chunk_t phrase;
+    if (!pvs_phrase_chunk(key, chunk, &phrase)) return;
+    char line[160];
+    int length = snprintf(line, sizeof line, "PVS PHRASE 1 %u %lu %u %u %u %c %u ",
+        phrase.bank, (unsigned long)phrase.revision, key, chunk,
+        phrase.length, phrase.kind, phrase.locks);
+    static const char hex[] = "0123456789abcdef";
+    for (unsigned i = 0; i < phrase.count; ++i) {
+        line[length++] = hex[phrase.text[i] >> 4];
+        line[length++] = hex[phrase.text[i] & 15];
+    }
+    if (!phrase.count) line[length++] = '-';
+    line[length++] = '\n';
+    if (tud_cdc_connected() && tud_cdc_write_available() >= (unsigned)length)
+        tud_cdc_write(line, (unsigned)length);
+}
+
+static void console_controls(const char *result) {
+    pvs_controls_t state;
+    pvs_controls_read(&state);
+    char line[160];
+    int length = snprintf(line, sizeof line,
+        "PVS PARAMS 1 %u %u %u %u %lu %u %u %u %u %u %u %s\n",
+        state.voice.speed, state.voice.pitch, state.voice.mouth, state.voice.throat,
+        (unsigned long)state.voice.sample_rate, state.voice.bit_depth,
+        state.hardware_mask, state.lock_mask, (unsigned)state.busy,
+        (unsigned)state.editable, state.mode, result);
+    if (length > 0 && length < (int)sizeof line && tud_cdc_connected() &&
+        tud_cdc_write_available() >= (unsigned)length)
+        tud_cdc_write(line, (unsigned)length);
+}
+
+/* Request/response snapshots: one bounded 64-byte chunk per command. No
+ * streaming task, blocking waits or writes from the audio IRQ/core 1. */
+static void console_oled(unsigned chunk) {
+    static uint8_t snapshot[1024];
+    static bool inverted, online, valid;
+    static unsigned sequence;
+    char line[176];
+    if (chunk >= 16 || (chunk && !valid)) return;
+    if (!chunk) {
+        online = oled_copy_display(snapshot, &inverted);
+        valid = true;
+        ++sequence;
+    }
+    int length = snprintf(line, sizeof line, "PVS OLED 1 %u %u %u %u ",
+                          sequence, chunk, (unsigned)inverted, (unsigned)online);
+    static const char hex[] = "0123456789abcdef";
+    for (unsigned i = 0; i < 64; ++i) {
+        uint8_t value = snapshot[chunk * 64 + i];
+        line[length++] = hex[value >> 4];
+        line[length++] = hex[value & 15];
+    }
+    line[length++] = '\n';
+    /* Drop under backpressure; the client detects its response timeout. */
+    if (tud_cdc_connected() && tud_cdc_write_available() >= (unsigned)length)
+        tud_cdc_write(line, (unsigned)length);
+}
 
 void storage_set_status_callback(void (*callback)(void)) {
     status_callback = callback;
@@ -27,7 +99,27 @@ bool storage_format_requested(void) {
 }
 
 static void console_command(char *command) {
-    if (!strcmp(command, "bootsel")) {
+    unsigned chunk;
+    unsigned key;
+    char extra;
+    if (!strcmp(command, "bank")) {
+        console_bank();
+    } else if (sscanf(command, "phrase %2u %1u%c", &key, &chunk, &extra) == 2) {
+        console_phrase(key, chunk);
+    } else if (sscanf(command, "key %2u%c", &key, &extra) == 1) {
+        console_controls(pvs_trigger_key(key));
+    } else if (!strcmp(command, "params")) {
+        console_controls("ok");
+    } else if (!strncmp(command, "set ", 4)) {
+        char parameter[12];
+        unsigned long value;
+        const char *result = "syntax";
+        if (sscanf(command, "set %11s %9lu%c", parameter, &value, &extra) == 2 && value <= UINT32_MAX)
+            result = pvs_controls_set(parameter, (uint32_t)value);
+        console_controls(result);
+    } else if (sscanf(command, "oled %2u%c", &chunk, &extra) == 1) {
+        console_oled(chunk);
+    } else if (!strcmp(command, "bootsel")) {
         pvs_request_bootsel();
     } else if (!strcmp(command, "edit")) {
         if (format_request) printf("Wait for requested format to finish before edit.\n");
@@ -57,7 +149,7 @@ static void console_command(char *command) {
                diagnostic.provision_attempted ? "attempted" : "not attempted");
         if (status_callback) status_callback();
     } else if (*command) {
-        printf("Commands: bootsel (firmware update); status; edit (eject to resume); format (ERASE PVS files, restore factory defaults).\n");
+        printf("Commands: bank; phrase KEY CHUNK; key 0..11; params; set speed|pitch|mouth|throat|rate|bits VALUE; oled 0..15; bootsel; status; edit; format (ERASE PVS files).\n");
     }
 }
 
@@ -68,6 +160,7 @@ void storage_console_service(void) {
     /* Called on core 0 only. The application disables stdio's background
      * TinyUSB task so no ISR can re-enter a FatFs/flash transaction. */
     tud_task();
+    midi_task();
     storage_service_remount();
     unsigned budget = 64;
     while (budget-- && tud_cdc_available()) {

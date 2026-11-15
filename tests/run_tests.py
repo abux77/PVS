@@ -20,6 +20,7 @@ def run(command, label):
 
 
 def main():
+    run([sys.executable, "tests/test_midi.py"], "USB MIDI validation and receive budget (ASan/UBSan)")
     run([sys.executable, "tests/test_oled_i2c.py"], "PIO OLED transport (ASan/UBSan)")
     run([sys.executable, "tests/test_oled.py"], "SSD1306 display driver (ASan/UBSan)")
     run([sys.executable, "tests/test_keypad.py"], "printed keypad and file migration")

@@ -44,7 +44,7 @@ add_executable(pvs
     src/main.c src/oled.c src/oled_i2c.c src/build_info.c src/pvs_memory.c src/pvs.c src/matrix.c src/pots.c src/ws2812.c
     ${PVS_AUDIO_SOURCE} src/storage.c src/sam_pvs.c
     src/sam/sam_reciter.c src/sam/sam_parser.c src/sam/sam_renderer.c
-    src/storage_format.c src/storage_usb.c src/flash_disk.c src/usb_descriptors.c
+    src/storage_format.c src/storage_usb.c src/flash_disk.c src/usb_descriptors.c src/midi.c
     third_party/sam/render.c
     third_party/fatfs/ff.c third_party/fatfs/ffunicode.c
     "${PVS_STORAGE_DEFAULTS}"

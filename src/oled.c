@@ -23,6 +23,11 @@ static unsigned cursor, failures;
 static uint32_t last_transfer;
 static bool splash_active, splash_started;
 static uint32_t splash_start;
+bool oled_copy_display(uint8_t pixels[1024], bool *polarity) {
+    memcpy(pixels, online ? sent : frame, sizeof sent);
+    *polarity = online ? sent_inverted : inverted;
+    return online;
+}
 #define SPLASH_DURATION_US 3000000u
 static const oled_glyph_t *glyph(unsigned char c) {
     if (c >= 'a' && c <= 'z') c -= 'a' - 'A';

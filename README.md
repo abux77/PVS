@@ -288,3 +288,51 @@ Speed spans 255 to 1 across increasing ADC readings (lower SAM values speak
 faster). Mouth now spans 255 to 1 in the same direction. Sample playback spans
 8000–88200 Hz, retaining 22050 Hz near the pot midpoint and 50 Hz steps.
 The higher rate changes playback speed/pitch; SAM still generates its native PCM.
+
+## Browser companion
+
+The [local companion page](web/README.md) mirrors the hardware OLED at an
+integer scale of 4×–8×, displays all six voice parameters, and supports web
+edits while physical knobs and phrase locks are not controlling them. Serve
+`web/` on localhost, open it in desktop Chrome or Edge, and click **Connect
+PVS**. This requires companion-enabled firmware. Synthesis stays on the instrument;
+web edits are session values, with the existing hardware presets used to save.
+
+## USB MIDI input
+
+PVS exposes a class-compliant **PVS MIDI** USB port alongside its existing
+serial console and file-editing drive. Receive channel: **1** (one-based).
+No MIDI application or browser is required on the Pico; select its MIDI port
+in your DAW or MIDI controller routing software. PVS is a USB device and needs
+a USB host between it and another USB-only controller.
+
+| MIDI CC | Parameter | CC 0 → 127 |
+| --- | --- | --- |
+| 20 | Speed | 1 → 255 |
+| 21 | Pitch | 0 → 255 |
+| 22 | Mouth | 0 → 255 |
+| 23 | Throat | 0 → 255 |
+| 24 | Sample rate | 8000 → 88200 Hz |
+| 25 | Bit depth | 1 → 8 bits |
+
+Values are scaled linearly and rounded to the nearest integer. Larger Speed
+values follow SAM's native parameter (longer/slower speech). Each CC updates
+its selected base value and rearms that knob's pickup at its current position;
+a stationary knob does not overwrite MIDI. Moving that knob by the existing
+pickup threshold restores hardware control. Other parameters keep their
+current ownership. MIDI edits are session values and do not save to flash.
+Active phrase locks retain playback priority; MIDI edits to a locked group
+become audible when the lock is no longer applied. Timbre and depth take effect
+at the next word boundary; sample rate can change during playback.
+
+Channel-1 Note On messages map **notes 36–47** to the current bank's keys
+**1, 2, 3, 4, 5, 6, 7, 8, 9, *, 0, #**, respectively. This always triggers a
+phrase, including while the hardware is in Voice, Sample, Chromatic or Preset
+mode. It never recalls/stores a preset or switches bank. Velocity 1–127 triggers
+the phrase at the instrument's existing level. Note Off and velocity-zero
+Note On are ignored: playback is one-shot. New notes interrupt/retrigger speech
+without recursively entering the renderer; the latest note in a burst wins.
+Unassigned keys, notes outside 36–47, other channels, unsupported CCs, and
+malformed packets are ignored. MIDI is ignored during USB editing or a pending
+firmware reboot. USB serial, virtual/physical OLED, and web controls remain
+available alongside MIDI; the web readouts follow incoming CC changes.

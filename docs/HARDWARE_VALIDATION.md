@@ -145,3 +145,35 @@ and confirm buttons/audio still respond during the splash.
 5. Check USB EDIT / SAVE FILES / EJECT FILES stay in that order. Bank loads,
    lock saves and preset loads/stores should show their confirmations for
    1.5 seconds for loaded messages and three seconds for stored/locked messages, then return to the mode/pot screen without pausing audio.
+
+## USB MIDI
+
+1. Check PVS enumerates as CDC serial + mass storage + MIDI, with a PVS MIDI
+   input/output pair in the host's MIDI tools. Serial `status`/`params` and the
+   companion's virtual or physical OLED must still work.
+2. Route channel-1 CC20–25, values 0 and 127. Verify Speed 1/255, Pitch 0/255,
+   Mouth 0/255, Throat 0/255, Rate 8000/88200, Bits 1/8 in `params` and the web
+   controls. Check interior values and other-channel/unsupported-CC filtering.
+3. Pick up a hardware knob, send its CC, and leave it stationary: the MIDI value
+   must persist. Move by the pickup threshold to recover hardware control.
+4. Send channel-1 notes 36–47 and check the twelve bank keys in order. Verify
+   phonetic phrases, new-note interruption and same-note retriggering. Note Off,
+   velocity-zero Note On and notes outside the mapping must not trigger speech.
+5. Check notes trigger bank phrases in Chromatic and Preset modes, without
+   changing presets/banks. Phrase locks retain priority during playback, while
+   MIDI updates the base values. Try CCs during speech and a dense note/CC burst;
+   listen for audio faults and check physical BOOTSEL/edit chords still work.
+6. In USB edit mode, notes/CCs must not play or modify voice state; eject, then
+   verify MIDI works again. Retain user files across firmware updates.
+
+## Companion phrase grid
+
+1. Connect the companion and check that the bank label, twelve key labels,
+   loaded text/phonemes and three lock groups match the hardware's current
+   files. Unassigned slots must be disabled.
+2. Click a phrase, retrigger it, and choose another during playback. Check the
+   active-key highlight and verify no preset/bank change occurs in any mode.
+3. Change bank and store/clear locks on the hardware while the page is open.
+   Check that the grid refreshes to one coherent bank, including long phrases.
+4. Switch each hardware mode and check the toolbar mode readout. During USB
+   editing or a pending firmware reboot, disable all phrase triggers.

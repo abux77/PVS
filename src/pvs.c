@@ -30,6 +30,7 @@ static bool sample_mode, pitch_mode, voice_mode, preset_mode;
 static bool modifier_down[4], modifier_used[4];
 static phrase_bank_t phrases, bank_scratch;
 static unsigned bank = 1, last_preset;
+static uint32_t phrase_revision;
 static sam_voice_t voice = {
     PVS_DEFAULT_SPEED, PVS_DEFAULT_PITCH, PVS_DEFAULT_MOUTH,
     PVS_DEFAULT_THROAT, PVS_DEFAULT_RATE, 8
@@ -50,6 +51,8 @@ static bool lock_cleared;
 static bool initialized;
 static int playing_button = -1;
 static int requested_button = -1;
+static bool requested_midi;
+static int midi_button = -1;
 static bool button_edit;
 #define DEFERRED_EVENTS 64u
 static matrix_state_t deferred[DEFERRED_EVENTS];
@@ -265,6 +268,114 @@ static void before_word(void *unused) {
     update_pots(true);
 }
 
+static uint8_t control_bit(pot_context_t context) {
+    if (context == POT_CHROMATIC) context = POT_PITCH;
+    return context <= POT_BITS ? (uint8_t)(1u << context) : 0;
+}
+
+void pvs_controls_read(pvs_controls_t *state) {
+    *state = (pvs_controls_t){.voice = voice,
+        .busy = sam_pvs_is_busy(),
+        .editable = initialized && !storage_edit_active() && !boot_request && !button_edit,
+        .mode = storage_edit_active() ? 5 : boot_request ? 6 : preset_mode ? 4 :
+                pitch_mode ? 3 : sample_mode ? 2 : voice_mode ? 1 : 0};
+    uint16_t raw[2];
+    pots_read(&raw[0], &raw[1]);
+    for (unsigned i = 0; i < 2; ++i)
+        if (pickup[i].active || abs((int)raw[i] - (int)pickup[i].reference) >= PVS_PICKUP_THRESHOLD)
+            state->hardware_mask |= control_bit(pickup[i].context);
+    if (phrase_active) {
+        if (active_lock.flags & LOCK_PITCH) state->lock_mask |= 3;
+        if (active_lock.flags & LOCK_VOICE) state->lock_mask |= 12;
+        if (active_lock.flags & LOCK_SAMPLE) state->lock_mask |= 48;
+    }
+}
+
+static const char *controls_set(const char *parameter, uint32_t value, bool midi) {
+    static const char *const names[] = {"speed", "pitch", "mouth", "throat", "rate", "bits"};
+    unsigned index;
+    for (index = 0; index < 6; ++index) if (!strcmp(parameter, names[index])) break;
+    if (index == 6) return "parameter";
+    uint32_t minimum = index == 4 ? PVS_MIN_RATE : index == 0 || index == 5 ? 1u : 0u;
+    uint32_t maximum = index == 4 ? PVS_MAX_RATE : index == 5 ? 8u : 255u;
+    if (value < minimum || value > maximum) return "range";
+    pvs_controls_t state;
+    pvs_controls_read(&state);
+    if (!state.editable) return "unavailable";
+    if (!midi && (state.lock_mask & (1u << index))) return "locked";
+    if (!midi && (state.hardware_mask & (1u << index))) return "hardware";
+    switch (index) {
+        case 0: voice.speed = (uint8_t)value; break;
+        case 1: voice.pitch = (uint8_t)value; break;
+        case 2: voice.mouth = (uint8_t)value; break;
+        case 3: voice.throat = (uint8_t)value; break;
+        case 4: voice.sample_rate = value; break;
+        case 5: voice.bit_depth = (uint8_t)value; break;
+    }
+    /* A waiting assigned knob stays at its current position until moved. */
+    uint16_t raw[2];
+    pots_read(&raw[0], &raw[1]);
+    for (unsigned i = 0; i < 2; ++i)
+        if (control_bit(pickup[i].context) == (1u << index))
+            pickup[i] = (pickup_t){pickup[i].context, raw[i], false};
+    /* Rate can change during a word; SAM timbre/depth take effect at the
+     * next existing word boundary. Avoid altering an in-flight render. */
+    if (!sam_pvs_is_busy()) effective_voice();
+    return "ok";
+}
+
+const char *pvs_controls_set(const char *parameter, uint32_t value) {
+    return controls_set(parameter, value, false);
+}
+
+void pvs_midi_cc(uint8_t controller, uint8_t value) {
+    if (controller < 20 || controller > 25 || value > 127) return;
+    static const char *const names[] = {"speed", "pitch", "mouth", "throat", "rate", "bits"};
+    unsigned index = controller - 20;
+    uint32_t minimum = index == 4 ? PVS_MIN_RATE : index == 0 || index == 5 ? 1u : 0u;
+    uint32_t maximum = index == 4 ? PVS_MAX_RATE : index == 5 ? 8u : 255u;
+    uint32_t mapped = minimum + ((uint32_t)value * (maximum - minimum) + 63u) / 127u;
+    (void)controls_set(names[index], mapped, true);
+}
+
+void pvs_midi_note(uint8_t note, uint8_t velocity) {
+    if (!velocity || velocity > 127 || note < 36 || note > 47) return;
+    (void)pvs_trigger_key(note - 36);
+}
+
+const char *pvs_trigger_key(unsigned button) {
+    if (!initialized || boot_request || button_edit || storage_edit_active()) return "unavailable";
+    if (button >= 12 || button >= phrases.count) return "range";
+    if (sam_pvs_is_busy() && playing_button >= 0) {
+        requested_button = (int)button;
+        requested_midi = true;
+    } else midi_button = (int)button;
+    if (sam_pvs_is_busy()) sam_pvs_stop();
+    return "ok";
+}
+
+void pvs_bank_read(pvs_bank_state_t *state) {
+    *state = (pvs_bank_state_t){phrase_revision, bank, phrase_active ? last_button : -1};
+}
+
+bool pvs_phrase_chunk(unsigned key, unsigned chunk, pvs_phrase_chunk_t *out) {
+    if (key >= 12 || chunk >= 8) return false;
+    *out = (pvs_phrase_chunk_t){.revision = phrase_revision, .bank = (uint8_t)bank, .kind = 'E'};
+    if (key >= phrases.count) return chunk == 0;
+    const phrase_t *phrase = &phrases.item[key];
+    while (out->length < sizeof phrase->text && phrase->text[out->length]) ++out->length;
+    if (out->length == sizeof phrase->text) return false;
+    unsigned offset = chunk * sizeof out->text;
+    out->kind = phrase->kind == PHRASE_PHONETIC ? 'P' : 'S';
+    out->locks = locks[key].flags;
+    if (offset >= out->length && chunk) return true;
+    unsigned count = out->length - offset;
+    if (count > sizeof out->text) count = sizeof out->text;
+    out->count = (uint8_t)count;
+    memcpy(out->text, phrase->text + offset, count);
+    return true;
+}
+
 static void speech_service(void *unused) {
     (void)unused;
     /* Phrase-key and edit requests interrupt playback. Defer all other
@@ -278,6 +389,7 @@ static void speech_service(void *unused) {
                     if (!(event.pressed & (1u << button))) continue;
                     if (!pitch_mode && button >= phrases.count) continue;
                     requested_button = (int)button;
+                    requested_midi = false;
                     event.pressed &= (uint16_t)~(1u << button);
                     sam_pvs_stop();
                     break;
@@ -325,6 +437,7 @@ static bool load_bank(unsigned selected, bool save) {
     bank = selected;
     memset(locks, 0, sizeof locks);
     if (!storage_load_locks(bank, locks)) printf("Bank %u lock file unavailable\n", bank);
+    ++phrase_revision;
     if (save) save_startup();
     printf("Phrase bank %u loaded (%u phrases)\n", bank, phrases.count);
     char title[24];
@@ -384,6 +497,7 @@ static void store_lock(void) {
         lock->voice.bit_depth = voice.bit_depth;
     }
     lock->flags |= lock_group;
+    ++phrase_revision;
     if (!storage_save_locks(bank, locks)) printf("Unable to save phrase locks\n");
     else display_notice("PARAMETER","LOCKED");
     printf("%s LOCK STORED: bank%u key %c flags%u\n", group_name(lock_group), bank, keypad_label((unsigned)lock_button), lock->flags);
@@ -391,16 +505,17 @@ static void store_lock(void) {
 
 static void clear_lock(void) {
     locks[lock_button].flags &= (uint8_t)~lock_group;
+    ++phrase_revision;
     if (!storage_save_locks(bank, locks)) printf("Unable to save phrase locks\n");
     printf("%s LOCK CLEARED: bank%u key %c\n", group_name(lock_group), bank, keypad_label((unsigned)lock_button));
     lock_cleared = true;
 }
 
-static void speak_phrase(unsigned button) {
+static void speak_phrase(unsigned button, bool from_midi) {
     /* Restart only after the renderer unwinds; never recurse into SAM. */
     for (;;) {
         requested_button = -1;
-        if (pitch_mode) {
+        if (pitch_mode && !from_midi) {
             if (!have_last_phrase) {
                 printf("No previous phrase\n");
                 return;
@@ -431,6 +546,7 @@ static void speak_phrase(unsigned button) {
         sam_pvs_set_voice(&voice);
         if (requested_button >= 0 && !button_edit && !boot_request) {
             button = (unsigned)requested_button;
+            from_midi = requested_midi;
             continue;
         }
         if (!ok) printf("Speech rejected or interrupted\n");
@@ -449,6 +565,7 @@ void pvs_reload_storage(void) {
         memset(&phrases, 0, sizeof phrases);
         memset(locks, 0, sizeof locks);
         bank = 1;
+        ++phrase_revision;
         printf("No readable phrase bank\n");
     }
     last_preset = 0;
@@ -474,6 +591,7 @@ void pvs_print_status(void) {
     pots_print_status();
     sam_pvs_print_status();
     pvs_memory_print_status();
+    printf("USB MIDI: channel 1; CC20-25 speed/pitch/mouth/throat/rate/bits; notes36-47 phrase keys\n");
     printf("WS2812 GP22: PIO1 SM1, eight LEDs; USB serial: ? for commands\n");
 }
 
@@ -536,11 +654,17 @@ void pvs_task(void) {
         }
     }
     if (storage_edit_active()) {
+        midi_button = -1;
         /* Drain events during editing so edits cannot enqueue speech. */
         (void)edit_chord(matrix_scan());
         return;
     }
     if (storage_reload_pending()) pvs_reload_storage();
+    if (midi_button >= 0) {
+        unsigned button = (unsigned)midi_button;
+        midi_button = -1;
+        speak_phrase(button, true);
+    }
     matrix_state_t state;
     if (deferred_count) {
         state = deferred[deferred_read];
@@ -559,6 +683,7 @@ void pvs_task(void) {
         modifier_used[1] = modifier_used[3] = true;
         reset_lock_combo();
         memset(locks, 0, sizeof locks);
+        ++phrase_revision;
         if (!storage_save_locks(bank, locks)) printf("Unable to save cleared locks\n");
         printf("ALL PARAMETER LOCKS CLEARED: bank%u\n", bank);
     }
@@ -647,6 +772,6 @@ void pvs_task(void) {
     for (unsigned i = 0; i < 4; ++i) modifier |= modifier_down[i];
     if (!modifier) {
         for (unsigned button = 0; button < 12; ++button)
-            if (state.pressed & (1u << button)) speak_phrase(button);
+            if (state.pressed & (1u << button)) speak_phrase(button, false);
     }
 }

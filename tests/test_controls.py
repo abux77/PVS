@@ -8,7 +8,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS = (
-    "bootsel", "bootsel_eject", "startup", "modes_pickup", "pickup_threshold", "live_modulation",
+    "phrase_metadata", "phrase_long", "phrase_empty", "midi_controls", "midi_notes", "midi_retrigger", "midi_locks", "companion_controls", "companion_word", "bootsel", "bootsel_eject", "startup", "modes_pickup", "pickup_threshold", "live_modulation",
     "word_modulation", "chromatic_last", "presets", "locks", "locked_sample",
     "edit", "format", "bank_priority", "retrigger", "edit_chord", "exclusive_modes", "idle_display", "display_notices",
 )

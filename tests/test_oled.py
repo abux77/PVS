@@ -54,9 +54,22 @@ int main(int argc,char **argv) {
     unsigned initial=calls;
     oled_show("NORMAL","SPEED 255","PITCH 255");
     for (unsigned i=0;i<100;++i) {fake_time+=1000;oled_task();}
-    if (mode==1 || mode==3) {assert(calls==initial && data_calls==0);return 0;}
+    if (mode==1 || mode==3) {
+        assert(calls==initial && data_calls==0);
+        uint8_t virtual_frame[1024]; bool polarity;
+        assert(!oled_copy_display(virtual_frame,&polarity) && !polarity);
+        unsigned lit=0; for(unsigned i=0;i<1024;++i) if(virtual_frame[i]) ++lit;
+        assert(lit>100);
+        oled_notice("PRESET","LOADED");
+        assert(!oled_copy_display(virtual_frame,&polarity) && polarity);
+        assert(calls==initial);
+        return 0;
+    }
     assert(data_calls==64);
     assert(!memcmp(ram,oled_boot_logo,sizeof ram));
+    uint8_t snapshot[1024]; bool polarity;
+    assert(oled_copy_display(snapshot,&polarity));
+    assert(!polarity && !memcmp(snapshot,ram,sizeof ram));
     oled_notice("BANK 3","LOADED");
     fake_time=3000000;oled_task();
     assert(!inverted && !memcmp(ram,oled_boot_logo,sizeof ram));
@@ -79,6 +92,8 @@ int main(int argc,char **argv) {
     oled_notice("PRESET","LOADED");
     oled_task(); /* No time advance: inversion bypasses chunk pacing. */
     assert(inverted && calls==previous_calls+1 && data_calls==previous_data);
+    assert(oled_copy_display(snapshot,&polarity));
+    assert(polarity && !memcmp(snapshot,ram,sizeof ram));
     for (unsigned i=0;i<100;++i) {fake_time+=1000;oled_task();}
     assert(!memcmp(normal,ram,sizeof normal) && data_calls==previous_data);
     previous_calls=calls;
@@ -92,6 +107,7 @@ int main(int argc,char **argv) {
     assert(calls==steady+1);
     for (unsigned i=0;i<100;++i) {fake_time+=1000;oled_task();}
     assert(calls==steady+1);
+    assert(!oled_copy_display(snapshot,&polarity));
 }
 ''')
     exe = path/'test'
