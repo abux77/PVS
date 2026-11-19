@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      - 'docs/pvs-user-guide/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -28,10 +29,15 @@ jobs:
       - uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload companion webpage
+      - name: Build Pages artifact with app and guide
+        run: |
+          mkdir -p _site/pvs-user-guide
+          cp -a web/. _site/
+          cp -a docs/pvs-user-guide/. _site/pvs-user-guide/
+      - name: Upload companion webpage and documentation
         uses: actions/upload-pages-artifact@v4
         with:
-          path: web
+          path: _site
       - name: Publish to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
