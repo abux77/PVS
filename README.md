@@ -7,6 +7,11 @@ its tested behavior. Physical acceptance
 testing is described in [docs/HARDWARE_VALIDATION.md](docs/HARDWARE_VALIDATION.md);
 a successful build or host test does not establish hardware parity.
 
+## Online resources
+
+- **[PVS Web App](https://abux77.github.io/PVS/)** — browser-based PVS companion app.
+- **[Interactive PVS User Guide](https://abux77.github.io/PVS/pvs-user-guide/)** — illustrated v0.4 documentation with clickable keypad controls.
+
 ## Build and flash
 
 The project uses Pico SDK 2.3.1, CMake, Ninja, an ARM toolchain, and Python 3 for
