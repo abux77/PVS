@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Portable Voice Synthesizer (PVS) user guide: operating modes, phrase banks, parameter locks, USB editing and firmware updates.">
+<title>PVS — Portable Voice Synthesizer User Guide</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1019;--side:#101826;--panel:#151e2e;--border:#2b384c;--text:#eff4fc;--muted:#a6b7cb;--blue:#46bafa;--red:#fc5b69;--max:1000px}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:32px}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--blue)}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:3px}button,input{font:inherit}.sidebar{width:270px;position:fixed;inset:0 auto 0 0;overflow-y:auto;background:var(--side);border-right:1px solid var(--border);padding:26px 17px;z-index:10}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;font-weight:900;font-size:24px;letter-spacing:3px;padding:2px 11px 16px}.brand-mark{height:29px;width:9px;background:linear-gradient(var(--blue) 0 48%,var(--red) 52%);border-radius:4px}.nav-label{font-size:11px;letter-spacing:1.5px;color:var(--muted);font-weight:800;margin:14px 11px 8px}nav a{display:block;text-decoration:none;color:#b8c8da;padding:7px 12px;border-radius:7px;font-size:13.5px;line-height:1.35}nav a:hover,nav a.active{background:#22344c;color:#fff}nav a.active{border-left:3px solid var(--blue)}.main{margin-left:270px;min-width:0}.hero{padding:68px clamp(22px,5.5vw,90px) 58px;background:radial-gradient(ellipse at top right,#173b57 0%,#111a29 45%,#0b1019 80%);border-bottom:1px solid var(--border)}.hero-inner{max-width:var(--max);margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:2px;color:var(--blue);font-size:12px;font-weight:800}.hero h1{font-size:clamp(37px,5vw,72px);line-height:1.08;letter-spacing:-2px;margin:13px 0 19px;max-width:740px}.hero p{font-size:19px;color:#c5d4e4;max-width:650px}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.hero-actions a{border:1px solid #44607b;border-radius:8px;padding:9px 17px;color:white;text-decoration:none;font-weight:650}.hero-actions a:first-child{background:#187eb9;border-color:#187eb9}.content{max-width:calc(var(--max) + 2 * clamp(22px,5.5vw,90px));margin:auto;padding:10px clamp(22px,5.5vw,90px) 100px}.doc-section{padding:50px 0 56px;border-bottom:1px solid var(--border);scroll-margin-top:10px}.section-top{display:flex;justify-content:space-between;gap:20px;align-items:center}.section-number{font-size:12px;letter-spacing:1px;color:#7d90a9}.doc-section h2{font-size:clamp(26px,3vw,38px);letter-spacing:-.8px;line-height:1.2;margin:12px 0 25px}.section-body{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.85fr);gap:30px;align-items:start}.copy{min-width:0}.copy p{margin:0 0 13px;color:#dce5f0}.copy ul{padding-left:25px;color:#dce5f0}.copy li{padding-bottom:8px}.copy pre{max-width:100%;overflow:auto;background:#0a1320;border:1px solid var(--border);padding:17px;border-radius:9px;color:#a9e2ff;font-size:14px}.knob{font-weight:750;border-left:4px solid;padding:6px 13px;background:var(--panel);border-radius:4px}.knob.blue{border-color:var(--blue)}.knob.red{border-color:var(--red)}figure{margin:0;background:#fff;border:1px solid #39495c;border-radius:14px;overflow:hidden;align-self:start}figure img,figure svg{display:block;width:100%;height:auto}footer{color:var(--muted);padding:35px;text-align:center;font-size:13px}#menu-toggle{display:none}.mobile-bar{display:none}@media(max-width:1000px){.section-body{grid-template-columns:minmax(0,1fr) 250px;gap:20px}}@media(max-width:760px){.sidebar{transform:translateX(-100%);transition:transform .22s;box-shadow:15px 0 30px #0005}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile-bar{position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:#101826;border-bottom:1px solid var(--border)}.mobile-bar button{background:#23334b;border:1px solid #3e5066;border-radius:7px;color:#fff;padding:5px 12px}.hero{padding-top:43px}.section-body{grid-template-columns:1fr}.section-body figure{max-width:410px}.doc-section{padding-top:38px}}@media print{.sidebar,.mobile-bar,.hero-actions{display:none!important}.main{margin-left:0}.hero{padding:20px}.content{padding:0 20px}.doc-section{break-inside:avoid;padding:15px 0}.section-body{grid-template-columns:1fr 220px}body{background:white;color:black}.copy p,.copy ul,.doc-section h2{color:black}figure{border:1px solid #aaa}}
+
+/* Interactive guide to the physical 4×4 keypad. Hotspots are aligned to image1.png. */
+.keypad-guide{max-width:var(--max);margin:0 auto;padding:32px 0 12px}
+.keypad-guide h2{font-size:clamp(25px,3vw,36px);margin:0 0 7px;line-height:1.25}
+.keypad-guide .intro{color:var(--muted);margin:0 0 20px}
+.keypad-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,.65fr);gap:28px;align-items:center}
+.keypad-image{position:relative;width:100%;max-width:675px;margin:0;background:#fff;border-radius:14px;line-height:0;overflow:hidden}
+.keypad-image img,.keypad-image svg{width:100%;height:auto;display:block}
+.keypad-hotspot{position:absolute;display:flex;align-items:center;justify-content:center;border:2px solid transparent;border-radius:12%;text-decoration:none;line-height:1;transition:background .15s,box-shadow .15s;overflow:hidden}
+.keypad-hotspot:hover,.keypad-hotspot:focus-visible{background:rgba(70,186,250,.24);box-shadow:inset 0 0 0 3px #0e344c,0 0 0 3px #46bafa}
+.keypad-hotspot.mode:hover,.keypad-hotspot.mode:focus-visible{background:rgba(252,91,105,.24);box-shadow:inset 0 0 0 3px #a02737,0 0 0 3px #fc5b69}
+.keypad-hotspot.knob-hotspot{border-radius:50%}
+.keypad-hotspot span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.keypad-links{background:var(--panel);border:1px solid var(--border);padding:18px 20px;border-radius:12px}
+.keypad-links h3{margin:0 0 9px;font-size:17px}
+.keypad-links p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.keypad-links a{display:block;padding:5px 0;font-size:14px}
+.keypad-tip{font-size:13px;color:var(--muted);margin:16px 0 0}
+@media(max-width:920px){.keypad-layout{grid-template-columns:1fr}.keypad-image{max-width:580px}}
+@media print{.keypad-links{background:white;color:black}.keypad-guide h2{color:black}}
+</style></head>
+<body><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden"><defs><symbol id="pvs-drawing" viewBox="0 0 692 531"><rect x="10" y="5" width="671" height="523" rx="14" fill="#fafafa" stroke="#222" stroke-width="2"/><rect x="270" y="22" width="392" height="434" rx="32" fill="#17191b"/><rect x="286" y="46" width="359" height="394" rx="21" fill="#0b0c0e" stroke="#ced8d7" stroke-width="6"/><circle cx="145" cy="136" r="58" fill="#07519d"/><circle cx="145" cy="136" r="33" fill="#b5b5b5" stroke="#7b7b7b" stroke-width="3"/><circle cx="145" cy="136" r="25" fill="none" stroke="#d1d1d1" stroke-width="1.7"/><circle cx="141" cy="354" r="58" fill="#b91822"/><circle cx="141" cy="354" r="33" fill="#b5b5b5" stroke="#7b7b7b" stroke-width="3"/><circle cx="141" cy="354" r="25" fill="none" stroke="#d1d1d1" stroke-width="1.7"/><rect x="305.0" y="91.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="310.0" y="96.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="339.0" y="141.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">1</text><rect x="388.3" y="91.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="393.3" y="96.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="422.3" y="141.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">2</text><rect x="471.6" y="91.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="476.6" y="96.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="505.6" y="141.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">3</text><rect x="554.9" y="91.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="559.9" y="96.0" width="58" height="58" rx="5" fill="#f31321"/><text x="588.9" y="141.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">A</text><rect x="305.0" y="172.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="310.0" y="177.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="339.0" y="222.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">4</text><rect x="388.3" y="172.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="393.3" y="177.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="422.3" y="222.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">5</text><rect x="471.6" y="172.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="476.6" y="177.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="505.6" y="222.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">6</text><rect x="554.9" y="172.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="559.9" y="177.0" width="58" height="58" rx="5" fill="#f31321"/><text x="588.9" y="222.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">B</text><rect x="305.0" y="253.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="310.0" y="258.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="339.0" y="303.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">7</text><rect x="388.3" y="253.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="393.3" y="258.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="422.3" y="303.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">8</text><rect x="471.6" y="253.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="476.6" y="258.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="505.6" y="303.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">9</text><rect x="554.9" y="253.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="559.9" y="258.0" width="58" height="58" rx="5" fill="#f31321"/><text x="588.9" y="303.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">C</text><rect x="305.0" y="334.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="310.0" y="339.0" width="58" height="58" rx="5" fill="#f31321"/><text x="339.0" y="384.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">*</text><rect x="388.3" y="334.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="393.3" y="339.0" width="58" height="58" rx="5" fill="#048ac2"/><text x="422.3" y="384.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">0</text><rect x="471.6" y="334.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="476.6" y="339.0" width="58" height="58" rx="5" fill="#f31321"/><text x="505.6" y="384.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">#</text><rect x="554.9" y="334.0" width="68" height="68" rx="8" fill="#c8dcde"/><rect x="559.9" y="339.0" width="58" height="58" rx="5" fill="#f31321"/><text x="588.9" y="384.0" font-size="47" text-anchor="middle" font-family="Arial,sans-serif" fill="#e2ecf4">D</text><text x="69" y="478" font-size="58" font-family="Arial,sans-serif" font-style="italic" font-weight="800" fill="#fafafa" stroke="#131313" stroke-width="1.8" paint-order="stroke">PVS</text><text x="71" y="501" font-size="15" font-family="Arial,sans-serif" font-style="italic" fill="#333">Portable Voice Synthesizer</text></symbol></defs></svg><aside class="sidebar" id="sidebar"><a class="brand" href="#top"><span class="brand-mark"></span>PVS</a><div class="nav-label">USER GUIDE</div><nav aria-label="Interactive controls"><a href="#interactive-keypad" data-link>Interactive keypad</a></nav><nav aria-label="Guide sections"><a href="#portable-voice-synthesizer" data-link>Portable Voice Synthesizer</a>
+<a href="#getting-started" data-link>Getting Started</a>
+<a href="#playing-phrases" data-link>Playing Phrases</a>
+<a href="#normal-mode" data-link>Normal Mode</a>
+<a href="#voice-mode" data-link>Voice Mode</a>
+<a href="#sample-mode" data-link>Sample Mode</a>
+<a href="#chromatic-mode" data-link>Chromatic Mode</a>
+<a href="#preset-mode" data-link>Preset Mode</a>
+<a href="#phrase-banks" data-link>Phrase Banks</a>
+<a href="#parameter-locks" data-link>Parameter Locks</a>
+<a href="#save-parameter-locks" data-link>Save Parameter Locks</a>
+<a href="#clear-parameter-locks" data-link>Clear Parameter Locks</a>
+<a href="#soft-takeover" data-link>Soft Takeover</a>
+<a href="#usb-edit-mode" data-link>Usb Edit Mode</a>
+<a href="#editing-phrase-files" data-link>Editing Phrase Files</a>
+<a href="#phrase-file-example" data-link>Phrase File Example</a>
+<a href="#sam-phonetics" data-link>Sam Phonetics</a>
+<a href="#editing-presets" data-link>Editing Presets</a>
+<a href="#startup-configuration" data-link>Startup Configuration</a>
+<a href="#firmware-update" data-link>Firmware Update</a>
+<a href="#troubleshooting" data-link>Troubleshooting</a></nav></aside>
+<div class="main"><div class="mobile-bar"><strong>PVS User Guide</strong><button id="menu-toggle" aria-controls="sidebar" aria-expanded="false">☰ Contents</button></div>
+<header class="hero" id="top"><div class="hero-inner"><div class="eyebrow">Portable Voice Synthesizer / v0.4</div><h1>The classic robot voice, reimagined.</h1><p>12 banks of 12 playable phrases, four performance modes, hands-on voice shaping and USB phrase editing.</p><div class="hero-actions"><a href="#getting-started">Get started</a><a href="#usb-edit-mode">Edit phrases over USB</a></div></div></header>
+<main class="content"><section class="keypad-guide" id="interactive-keypad" aria-labelledby="keypad-title"><h2 id="keypad-title">Explore the PVS controls</h2><p class="intro">Select a keypad button or knob to jump to its instructions.</p><div class="keypad-layout"><div class="keypad-image"><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg><a class="keypad-hotspot" href="#playing-phrases" title="1: Play phrase (or select bank while holding D)" aria-label="1: Play phrase (or select bank while holding D)" style="left:44.075%;top:17.043%;width:9.827%;height:12.994%"><span>1</span></a><a class="keypad-hotspot" href="#playing-phrases" title="2: Play phrase (or select bank while holding D)" aria-label="2: Play phrase (or select bank while holding D)" style="left:56.214%;top:17.043%;width:9.827%;height:12.994%"><span>2</span></a><a class="keypad-hotspot" href="#playing-phrases" title="3: Play phrase (or select bank while holding D)" aria-label="3: Play phrase (or select bank while holding D)" style="left:68.208%;top:17.043%;width:9.827%;height:12.994%"><span>3</span></a><a class="keypad-hotspot mode" href="#voice-mode" title="A: Voice Mode" aria-label="A: Voice Mode" style="left:80.202%;top:17.043%;width:9.827%;height:12.994%"><span>A</span></a><a class="keypad-hotspot" href="#playing-phrases" title="4: Play phrase (or select bank while holding D)" aria-label="4: Play phrase (or select bank while holding D)" style="left:44.075%;top:32.298%;width:9.827%;height:12.994%"><span>4</span></a><a class="keypad-hotspot" href="#playing-phrases" title="5: Play phrase (or select bank while holding D)" aria-label="5: Play phrase (or select bank while holding D)" style="left:56.214%;top:32.298%;width:9.827%;height:12.994%"><span>5</span></a><a class="keypad-hotspot" href="#playing-phrases" title="6: Play phrase (or select bank while holding D)" aria-label="6: Play phrase (or select bank while holding D)" style="left:68.208%;top:32.298%;width:9.827%;height:12.994%"><span>6</span></a><a class="keypad-hotspot mode" href="#sample-mode" title="B: Sample Mode" aria-label="B: Sample Mode" style="left:80.202%;top:32.298%;width:9.827%;height:12.994%"><span>B</span></a><a class="keypad-hotspot" href="#playing-phrases" title="7: Play phrase (or select bank while holding D)" aria-label="7: Play phrase (or select bank while holding D)" style="left:44.075%;top:47.552%;width:9.827%;height:12.994%"><span>7</span></a><a class="keypad-hotspot" href="#playing-phrases" title="8: Play phrase (or select bank while holding D)" aria-label="8: Play phrase (or select bank while holding D)" style="left:56.214%;top:47.552%;width:9.827%;height:12.994%"><span>8</span></a><a class="keypad-hotspot" href="#playing-phrases" title="9: Play phrase (or select bank while holding D)" aria-label="9: Play phrase (or select bank while holding D)" style="left:68.208%;top:47.552%;width:9.827%;height:12.994%"><span>9</span></a><a class="keypad-hotspot mode" href="#chromatic-mode" title="C: Chromatic Mode" aria-label="C: Chromatic Mode" style="left:80.202%;top:47.552%;width:9.827%;height:12.994%"><span>C</span></a><a class="keypad-hotspot" href="#playing-phrases" title="*: Play phrase (or select bank while holding D)" aria-label="*: Play phrase (or select bank while holding D)" style="left:44.075%;top:62.618%;width:9.827%;height:12.994%"><span>*</span></a><a class="keypad-hotspot" href="#playing-phrases" title="0: Play phrase (or select bank while holding D)" aria-label="0: Play phrase (or select bank while holding D)" style="left:56.214%;top:62.618%;width:9.827%;height:12.994%"><span>0</span></a><a class="keypad-hotspot" href="#playing-phrases" title="#: Play phrase (or select bank while holding D)" aria-label="#: Play phrase (or select bank while holding D)" style="left:68.208%;top:62.618%;width:9.827%;height:12.994%"><span>#</span></a><a class="keypad-hotspot mode" href="#preset-mode" title="D: Preset Mode" aria-label="D: Preset Mode" style="left:80.202%;top:62.618%;width:9.827%;height:12.994%"><span>D</span></a><a class="keypad-hotspot knob-hotspot" href="#normal-mode" title="Blue knob: knob assignments by mode" aria-label="Blue knob: view normal-mode control assignments" style="left:12.283%;top:14.313%;width:17.341%;height:22.599%"><span>Blue knob</span></a><a class="keypad-hotspot knob-hotspot" href="#normal-mode" title="Red knob: knob assignments by mode" aria-label="Red knob: view normal-mode control assignments" style="left:11.705%;top:55.367%;width:17.341%;height:22.599%"><span>Red knob</span></a></div><div class="keypad-links"><h3>More button combinations</h3><p>The phrase keys play sounds normally. Hold a mode key with a phrase key for alternate functions.</p><a href="#phrase-banks">D + phrase: Select a phrase bank</a><a href="#parameter-locks">A / B / C + phrase: Parameter locks</a><a href="#usb-edit-mode">A + D: USB Edit Mode</a><a href="#firmware-update">B + C: Firmware update</a><a href="#clear-parameter-locks">D + B: Clear all bank locks</a><a href="#soft-takeover">Knobs: Soft takeover explained</a></div></div><p class="keypad-tip">The diagram is a navigation aid; it does not trigger sounds or operate a connected PVS.</p></section><section class="doc-section" id="portable-voice-synthesizer" aria-labelledby="h1">
+  <div class="section-top"><span class="eyebrow">INTRODUCTION</span><span class="section-number">01 / 21</span></div>
+  <h2 id="h1">Portable Voice Synthesizer</h2>
+  <div class="section-body"><div class="copy"><p>THE CLASSIC ROBOT VOICE,</p>
+<p>REIMAGINED</p>
+<p>12 banks of 12 playable phrases</p>
+<p>4 performance modes</p>
+<p>Hands-on voice shaping</p>
+<p>USB phrase editing</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="getting-started" aria-labelledby="h2">
+  <div class="section-top"><span class="eyebrow">QUICK START</span><span class="section-number">02 / 21</span></div>
+  <h2 id="h2">Getting Started</h2>
+  <div class="section-body"><div class="copy"><p>Connect the PVS to USB power.</p>
+<p>The OLED shows the PVS logo, then the current operating mode and knob values.</p>
+<p>Press any of the twelve phrase keys to hear speech.</p>
+<p>Use the red knob for Speed and the blue knob for Pitch in Normal Mode.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="playing-phrases" aria-labelledby="h3">
+  <div class="section-top"><span class="eyebrow">PLAYBACK</span><span class="section-number">03 / 21</span></div>
+  <h2 id="h3">Playing Phrases</h2>
+  <div class="section-body"><div class="copy"><p>The twelve phrase keys are 1–9, *, 0 and #.</p>
+<p>Each key plays the matching phrase in the selected bank.</p>
+<p>Press another phrase key to interrupt speech and play a different phrase.</p>
+<p>Press the same key again to restart it.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="normal-mode" aria-labelledby="h4">
+  <div class="section-top"><span class="eyebrow">PERFORMANCE</span><span class="section-number">04 / 21</span></div>
+  <h2 id="h4">Normal Mode</h2>
+  <div class="section-body"><div class="copy"><p>Normal Mode is the starting point for everyday phrase playback.</p>
+<p class="knob blue">BLUE KNOB - Pitch</p>
+<p class="knob red">RED KNOB – Speed</p>
+<p>These controls reshape the synthetic voice.</p>
+<p>Changes to voice parameters take effect at word boundaries.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="voice-mode" aria-labelledby="h5">
+  <div class="section-top"><span class="eyebrow">PERFORMANCE</span><span class="section-number">05 / 21</span></div>
+  <h2 id="h5">Voice Mode</h2>
+  <div class="section-body"><div class="copy"><p>Tap A to enter or leave Voice Mode.</p>
+<p class="knob blue">BLUE KNOB - Throat</p>
+<p class="knob red">RED KNOB - Mouth</p>
+<p>These controls reshape the synthetic voice.</p>
+<p>Changes to voice parameters take effect at word boundaries.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="sample-mode" aria-labelledby="h6">
+  <div class="section-top"><span class="eyebrow">PERFORMANCE</span><span class="section-number">06 / 21</span></div>
+  <h2 id="h6">Sample Mode</h2>
+  <div class="section-body"><div class="copy"><p>Tap B to enter or leave Sample Mode.</p>
+<p class="knob blue">BLUE KNOB - Bit Depth (8bit to 1bit)</p>
+<p class="knob red">RED KNOB - Sample Rate (8 to 44.1kHz)</p>
+<p>Turning the red knob toward its minimum ADC position selects the highest sample rate.</p>
+<p>The selected sample rate persists after leaving this mode.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="chromatic-mode" aria-labelledby="h7">
+  <div class="section-top"><span class="eyebrow">PERFORMANCE</span><span class="section-number">07 / 21</span></div>
+  <h2 id="h7">Chromatic Mode</h2>
+  <div class="section-body"><div class="copy"><p>Tap C to enter or leave Chromatic Mode.</p>
+<p>The twelve phrase keys replay the last phrase at successive semitones, C through B.</p>
+<p class="knob blue">BLUE KNOB - Pitch</p>
+<p class="knob red">RED KNOB - Speed</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="preset-mode" aria-labelledby="h8">
+  <div class="section-top"><span class="eyebrow">MEMORY</span><span class="section-number">08 / 21</span></div>
+  <h2 id="h8">Preset Mode</h2>
+  <div class="section-body"><div class="copy"><p>Tap D to enter or leave Preset Mode.</p>
+<p>Tap a phrase key to recall its preset.</p>
+<p>Hold a phrase key for at least 2 seconds to store the current settings.</p>
+<p>The PVS confirms the action and exits Preset Mode.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="phrase-banks" aria-labelledby="h9">
+  <div class="section-top"><span class="eyebrow">MEMORY</span><span class="section-number">09 / 21</span></div>
+  <h2 id="h9">Phrase Banks</h2>
+  <div class="section-body"><div class="copy"><p>There are 12 phrase banks, each with up to 12 phrases.</p>
+<p>Hold D, then press a phrase key to select its bank.</p>
+<p>Keys * / 0 / # select banks 10 / 11 / 12.</p>
+<p>The OLED briefly displays BANK X / LOADED.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="parameter-locks" aria-labelledby="h10">
+  <div class="section-top"><span class="eyebrow">MEMORY</span><span class="section-number">10 / 21</span></div>
+  <h2 id="h10">Parameter Locks</h2>
+  <div class="section-body"><div class="copy"><p>A phrase can remember its own settings without changing the global voice.</p>
+<p>Three lock groups are available:</p>
+<ul><li>A + phrase: Mouth and Throat</li><li>B + phrase: Sample Rate and Bit Depth</li><li>C + phrase: Speed and Pitch</li></ul></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="save-parameter-locks" aria-labelledby="h11">
+  <div class="section-top"><span class="eyebrow">MEMORY</span><span class="section-number">11 / 21</span></div>
+  <h2 id="h11">Save Parameter Locks</h2>
+  <div class="section-body"><div class="copy"><p>Adjust the desired parameters first.</p>
+<p>Hold the corresponding mode key (A, B or C), press a phrase key, then release the phrase key to store that group.</p>
+<p>The OLED confirms PARAMETER / LOCKED.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="clear-parameter-locks" aria-labelledby="h12">
+  <div class="section-top"><span class="eyebrow">MEMORY</span><span class="section-number">12 / 21</span></div>
+  <h2 id="h12">Clear Parameter Locks</h2>
+  <div class="section-body"><div class="copy"><p>To clear one lock group, hold its mode key (A, B or C) together with the phrase key for at least 2 seconds.</p>
+<p>To clear ALL locks in the currently selected bank, hold D and press B.</p>
+<p>Locks are saved separately for each phrase bank.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="soft-takeover" aria-labelledby="h13">
+  <div class="section-top"><span class="eyebrow">CONTROLS</span><span class="section-number">13 / 21</span></div>
+  <h2 id="h13">Soft Takeover</h2>
+  <div class="section-body"><div class="copy"><p>When you change modes or recall a preset, the physical knob position may not match the saved parameter value.</p>
+<p>The PVS uses soft takeover to prevent sudden jumps.</p>
+<p>Move the knob until it picks up the current value; then adjustments take effect.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="usb-edit-mode" aria-labelledby="h14">
+  <div class="section-top"><span class="eyebrow">FILE MANAGEMENT</span><span class="section-number">14 / 21</span></div>
+  <h2 id="h14">Usb Edit Mode</h2>
+  <div class="section-body"><div class="copy"><p>Press A + D together</p>
+<p>Speech stops and a USB disk named PVS becomes available on your computer.</p>
+<p>Edit or copy the text files, then EJECT the PVS drive in your operating system.</p>
+<p>The PVS reloads its files and resumes operation after eject.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="editing-phrase-files" aria-labelledby="h15">
+  <div class="section-top"><span class="eyebrow">FILE MANAGEMENT</span><span class="section-number">15 / 21</span></div>
+  <h2 id="h15">Editing Phrase Files</h2>
+  <div class="section-body"><div class="copy"><p>Open phrases_1.txt through phrases_12.txt with a plain-text editor.</p>
+<p>Each bank has up to twelve lines in keypad order:</p>
+<p>1, 2, 3, 4, 5, 6, 7, 8, 9, *, 0, #</p>
+<p>Start a line with S: for text or P: for SAM phonemes.</p>
+<p>Lines starting with # are comments.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="phrase-file-example" aria-labelledby="h16">
+  <div class="section-top"><span class="eyebrow">FILE MANAGEMENT</span><span class="section-number">16 / 21</span></div>
+  <h2 id="h16">Phrase File Example</h2>
+  <div class="section-body"><div class="copy"><p>Example contents of phrases_1.txt:</p>
+<pre><code>S:HELLO THERE</code></pre>
+<pre><code>S:WELCOME TO PVS</code></pre>
+<pre><code>P:AY4 AEM AH ROH4BOWLAORD</code></pre>
+<p>Keep one phrase per key position.</p>
+<p>Make a backup before editing and always eject the PVS USB disk safely.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="sam-phonetics" aria-labelledby="h17">
+  <div class="section-top"><span class="eyebrow">FILE MANAGEMENT</span><span class="section-number">17 / 21</span></div>
+  <h2 id="h17">Sam Phonetics</h2>
+  <div class="section-body"><div class="copy"><p>Use S: for ordinary text: the speech reciter converts it to phonemes.</p>
+<p>Use P: when you want to specify SAM phonemes directly, including stress and pronunciation.</p>
+<p>Example: P:AY4 AEM AH ROH4BOWLAORD</p>
+<p>Phonetic spelling is different from ordinary English spelling.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="editing-presets" aria-labelledby="h18">
+  <div class="section-top"><span class="eyebrow">FILE MANAGEMENT</span><span class="section-number">18 / 21</span></div>
+  <h2 id="h18">Editing Presets</h2>
+  <div class="section-body"><div class="copy"><p>In USB Edit Mode, presets.txt stores one preset per CSV row:</p>
+<p>preset,speed,pitch,mouth,throat,sample_rate,bit_depth</p>
+<p>Parameter locks are stored separately in locks_1.txt through locks_12.txt.</p>
+<p>Prefer the keypad for saving presets and locks during normal use.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="startup-configuration" aria-labelledby="h19">
+  <div class="section-top"><span class="eyebrow">FILE MANAGEMENT</span><span class="section-number">19 / 21</span></div>
+  <h2 id="h19">Startup Configuration</h2>
+  <div class="section-body"><div class="copy"><p>startup_state.txt contains:</p>
+<p>bank,preset</p>
+<p>It selects the phrase bank and optional preset loaded at startup.</p>
+<p>A preset value of 0 disables startup preset recall.</p>
+<p>The supplied factory startup file selects bank 3 and preset 1.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="firmware-update" aria-labelledby="h20">
+  <div class="section-top"><span class="eyebrow">MAINTENANCE</span><span class="section-number">20 / 21</span></div>
+  <h2 id="h20">Firmware Update</h2>
+  <div class="section-body"><div class="copy"><p>Press B + C together to enter Firmware Flash Mode.</p>
+<p>The PVS stops playback and opens its bootloader USB drive (RPI-RP2 on Pico).</p>
+<p>Copy the correct pvs.uf2 firmware file for your board to that drive.</p>
+<p>The PVS restarts automatically.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section>
+<section class="doc-section" id="troubleshooting" aria-labelledby="h21">
+  <div class="section-top"><span class="eyebrow">SUPPORT</span><span class="section-number">21 / 21</span></div>
+  <h2 id="h21">Troubleshooting</h2>
+  <div class="section-body"><div class="copy"><p>No knob response?</p>
+<p>Move the knob until soft takeover engages.</p>
+<p>Edited phrases not showing?</p>
+<p>Eject the PVS USB drive; changes load after eject.</p></div><figure><svg viewBox="0 0 692 531" role="img" aria-label="PVS instrument with red and blue knobs and four-by-four keypad"><use href="#pvs-drawing"/></svg></figure></div>
+</section></main><footer>Portable Voice Synthesizer · User Guide v0.4</footer></div>
+<script>
+const menu=document.getElementById('menu-toggle'),sidebar=document.getElementById('sidebar');menu.style.display='inline-block';menu.addEventListener('click',()=>{const open=sidebar.classList.toggle('open');menu.setAttribute('aria-expanded',String(open))});document.querySelectorAll('[data-link]').forEach(a=>a.addEventListener('click',()=>{sidebar.classList.remove('open');menu.setAttribute('aria-expanded','false')}));const links=[...document.querySelectorAll('[data-link]')];if('IntersectionObserver' in window){const obs=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(visible){links.forEach(a=>a.classList.toggle('active',a.hash==='#'+visible.target.id))}},{rootMargin:'-15% 0px -55% 0px',threshold:[0,.2,.5]});document.querySelectorAll('.doc-section').forEach(s=>obs.observe(s))}
+</script></body></html>
